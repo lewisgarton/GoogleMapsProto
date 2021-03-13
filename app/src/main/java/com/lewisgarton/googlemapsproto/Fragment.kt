@@ -7,8 +7,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.google.android.gms.common.api.Status
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment
@@ -49,7 +47,7 @@ class Fragment : Fragment() {
             override fun onPlaceSelected(place: Place) {
                 val newPos = place.latLng
                 if (newPos != null) {
-                    mapsFragment.moveCameraWithPin(newPos)
+                    mapsFragment.moveCameraWithMarker(newPos)
                 }
             }
 
