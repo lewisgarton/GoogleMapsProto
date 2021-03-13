@@ -22,7 +22,6 @@ import com.google.android.libraries.places.api.net.PlacesClient
 class MapsFragment : Fragment() {
 
     var googleMap: GoogleMap? = null
-    var placesClient: PlacesClient? = null
 
     private val callback = OnMapReadyCallback { googleMap ->
         /**
@@ -39,30 +38,16 @@ class MapsFragment : Fragment() {
         googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
         this.googleMap = googleMap
 
-        //Add listener
         googleMap?.setOnMarkerClickListener {
             Log.i("PLACE CLICKED", "${it.position}")
             true
         }
 
         googleMap?.setOnPoiClickListener {
-            if (placesClient != null) {
-                val location = it.latLng
-                val name = it.name
-                val placeID = it.placeId
-
-
-                val placeInfo = placesClient.fetchPlace(
-                        FetchPlaceRequest.newInstance(
-
-                        )
-                )
-            }
-
-
-            }
 
         }
+    }
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -78,5 +63,12 @@ class MapsFragment : Fragment() {
         mapFragment?.getMapAsync(callback)
     }
 
-
+    fun moveCameraWithPin(location: LatLng) {
+        googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 15.0F))
+        googleMap?.clear()
+        googleMap?.addMarker(
+            MarkerOptions()
+                .position(location)
+        )
+    }
 }
