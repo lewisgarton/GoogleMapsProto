@@ -26,6 +26,7 @@ jobs:
         run: bash ./gradlew assembleDebug --stacktrace
         
       - name: Upload APK
+        run: echo GOOGLE_API_KEY="$GOOGLE_API_KEY" > ./local.properties
         uses: actions/upload-artifact@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

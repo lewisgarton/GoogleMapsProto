@@ -1,5 +1,9 @@
 package com.lewisgarton.googlemapsproto
 
+import android.Manifest
+import android.annotation.SuppressLint
+import android.content.pm.PackageManager
+import android.location.Location
 import androidx.fragment.app.Fragment
 
 import android.os.Bundle
@@ -7,11 +11,13 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.app.ActivityCompat
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.*
 
-class MapsFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnPoiClickListener, GoogleMap.OnMarkerClickListener {
+class MapsFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnPoiClickListener, GoogleMap.OnMarkerClickListener, GoogleMap.OnMyLocationButtonClickListener,
+        GoogleMap.OnMyLocationClickListener{
     private lateinit var viewModel: ViewModel
     var map: GoogleMap? = null
 
@@ -45,8 +51,12 @@ class MapsFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnPoiClickListene
         }
     }
 
+    @SuppressLint("MissingPermission")
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
+
+        googleMap.isMyLocationEnabled = true
+        googleMap.myLocation
         googleMap.let {
             it.addMarker(MarkerOptions().position(viewModel.getSelectedLocation()))
             it.moveCamera(CameraUpdateFactory.newLatLng(viewModel.getSelectedLocation()))
@@ -64,6 +74,14 @@ class MapsFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnPoiClickListene
     override fun onMarkerClick(marker: Marker): Boolean {
         Log.i("MAPS", "MARKER CLICK $marker")
         return true
+    }
+
+    override fun onMyLocationButtonClick(): Boolean {
+        TODO("Not yet implemented")
+    }
+
+    override fun onMyLocationClick(p0: Location) {
+        TODO("Not yet implemented")
     }
 
 
