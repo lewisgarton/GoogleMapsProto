@@ -32,7 +32,7 @@ class MapsFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnPoiClickListene
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel = ViewModelProvider(this).get(ViewModel::class.java)
+        viewModel = ViewModelProvider(requireActivity()).get(ViewModel::class.java)
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
 
         mapFragment?.getMapAsync(this)
@@ -69,6 +69,7 @@ class MapsFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnPoiClickListene
             isMyLocationEnabled = true
             val initialLocation: LatLng = viewModel.getSelectedLocation()
             addMarker(MarkerOptions().position(initialLocation))
+
             moveCamera(CameraUpdateFactory.newLatLng(initialLocation))
         }
 

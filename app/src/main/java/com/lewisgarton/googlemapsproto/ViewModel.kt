@@ -21,6 +21,7 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
     val currentLocation: MutableLiveData<LatLng> = MutableLiveData(tempStartingLocation)
     val locationClient = LocationServices.getFusedLocationProviderClient(application)
     val locationImage: MutableLiveData<Bitmap> = MutableLiveData()
+    val isImageLoading: MutableLiveData<Boolean> = MutableLiveData(false)
 
     val placesClient by lazy {
         Places.initialize(application, BuildConfig.GOOGLE_API_KEY)
@@ -36,10 +37,12 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
 
     fun updateHeaderImage(photoMetadata: PhotoMetadata?) {
         if(photoMetadata != null) {
+            isImageLoading.value = true
             val photoRequest = FetchPhotoRequest.builder(photoMetadata)
                 .build()
             placesClient.fetchPhoto(photoRequest)
                 .addOnSuccessListener { fetchPhotoResponse: FetchPhotoResponse ->
+                    isImageLoading.value = false
                     locationImage.value = fetchPhotoResponse.bitmap
                 }
         }
@@ -47,6 +50,7 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
 
     fun updateHeaderImage(placeID: String?) {
         if (placeID != null) {
+            isImageLoading.value = true
             val placeRequest =
                 FetchPlaceRequest.builder(placeID, listOf(Place.Field.NAME, Place.Field.PHOTO_METADATAS))
                     .build()
@@ -60,7 +64,6 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
                 }
         }
     }
-
 
     @SuppressLint("MissingPermission")
     fun getDeviceLocation() {

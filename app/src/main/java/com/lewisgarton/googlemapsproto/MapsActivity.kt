@@ -1,15 +1,16 @@
 package com.lewisgarton.googlemapsproto
 
-import android.Manifest.permission.ACCESS_FINE_LOCATION
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import com.google.android.gms.location.LocationServices
-import com.vmadalin.easypermissions.EasyPermissions
+import androidx.activity.viewModels
+import androidx.lifecycle.ViewModelProvider
 
 class MapsActivity : AppCompatActivity() {
+    lateinit var viewModel: ViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        viewModel = ViewModelProvider(this).get(ViewModel::class.java)
         setContentView(R.layout.activity_maps)
     }
 

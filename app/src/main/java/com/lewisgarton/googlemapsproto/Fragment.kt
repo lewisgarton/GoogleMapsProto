@@ -5,8 +5,11 @@ import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.INVISIBLE
+import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.ProgressBar
 import androidx.lifecycle.observe
 import com.google.android.gms.common.api.Status
 import com.google.android.libraries.places.api.Places
@@ -27,7 +30,7 @@ class Fragment : Fragment() {
         childFragmentManager.findFragmentById(R.id.autocompleteFragment) as AutocompleteSupportFragment
 
     private lateinit var image: ImageView
-
+    private lateinit var loadingAnimation: ProgressBar
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -40,9 +43,18 @@ class Fragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         image = activity?.findViewById(R.id.imageView)!!
-        viewModel = ViewModelProvider(this).get(ViewModel::class.java)
+        loadingAnimation = activity?.findViewById(R.id.loadingAnimation)!!
+        viewModel = ViewModelProvider(requireActivity()).get(ViewModel::class.java)
         viewModel.locationImage.observeForever {
             image.setImageBitmap(viewModel.locationImage.value)
+        }
+
+        viewModel.isImageLoading.observeForever {
+            if(it) {
+                loadingAnimation.visibility = VISIBLE
+            } else {
+                loadingAnimation.visibility = INVISIBLE
+            }
         }
 
 
