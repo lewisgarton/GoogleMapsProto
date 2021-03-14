@@ -2,23 +2,30 @@ package com.lewisgarton.googlemapsproto
 
 import android.annotation.SuppressLint
 import android.app.Application
-import androidx.appcompat.app.AppCompatActivity
+import android.graphics.Bitmap
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import com.google.android.gms.location.LocationServices
-import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.PointOfInterest
-import com.google.android.gms.tasks.Task
-import com.google.android.libraries.places.api.net.PlacesClient
+import com.google.android.libraries.places.api.Places
+import com.google.android.libraries.places.api.model.PhotoMetadata
+import com.google.android.libraries.places.api.model.Place
+import com.google.android.libraries.places.api.net.*
 
 //TODO: remove this and get users current location
 val tempStartingLocation = LatLng(-34.0, 151.0)
 
 class ViewModel(application: Application) : AndroidViewModel(application) {
-    var places: PlacesClient? = null
     val currentLocation: MutableLiveData<LatLng> = MutableLiveData(tempStartingLocation)
     val locationClient = LocationServices.getFusedLocationProviderClient(application)
+    val locationImage: MutableLiveData<Bitmap> = MutableLiveData()
+
+    val placesClient by lazy {
+        Places.initialize(application, BuildConfig.GOOGLE_API_KEY)
+        Places.createClient(application)
+    }
 
     fun getSelectedLocation(): LatLng =
         if (currentLocation.value == null) {
@@ -27,9 +34,33 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
             currentLocation.value!!
         }
 
-    fun setPointOfInterest(pointOfInterest: PointOfInterest?) {
-
+    fun updateHeaderImage(photoMetadata: PhotoMetadata?) {
+        if(photoMetadata != null) {
+            val photoRequest = FetchPhotoRequest.builder(photoMetadata)
+                .build()
+            placesClient.fetchPhoto(photoRequest)
+                .addOnSuccessListener { fetchPhotoResponse: FetchPhotoResponse ->
+                    locationImage.value = fetchPhotoResponse.bitmap
+                }
+        }
     }
+
+    fun updateHeaderImage(placeID: String?) {
+        if (placeID != null) {
+            val placeRequest =
+                FetchPlaceRequest.builder(placeID, listOf(Place.Field.NAME, Place.Field.PHOTO_METADATAS))
+                    .build()
+            placesClient.fetchPlace(placeRequest)
+                .addOnSuccessListener { response: FetchPlaceResponse ->
+                    Log.d("ZMAPS", "<${ response.place.name + response.place.photoMetadatas }>")
+                    val photoMetadata: PhotoMetadata? = response.place.photoMetadatas?.get(0)
+                    updateHeaderImage(photoMetadata)
+                }.addOnFailureListener {
+                    it.message?.let { it1 -> Log.d("MAPS", it1) }
+                }
+        }
+    }
+
 
     @SuppressLint("MissingPermission")
     fun getDeviceLocation() {

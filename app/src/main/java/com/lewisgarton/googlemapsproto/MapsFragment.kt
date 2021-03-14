@@ -77,8 +77,9 @@ class MapsFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnPoiClickListene
     }
 
     override fun onPoiClick(pointOfInterest: PointOfInterest) {
-        viewModel.setPointOfInterest(pointOfInterest)
-        Log.i("MAPS", "POI CLICK $pointOfInterest")
+        viewModel.placesClient
+        Log.i("MAPS", "POI CLICK ${pointOfInterest.placeId}")
+        viewModel.updateHeaderImage(pointOfInterest.placeId)
         moveCamera(pointOfInterest.latLng)
     }
 
