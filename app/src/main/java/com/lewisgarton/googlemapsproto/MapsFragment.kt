@@ -13,6 +13,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.observe
 import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.*
 
@@ -33,7 +34,10 @@ class MapsFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnPoiClickListene
         super.onViewCreated(view, savedInstanceState)
         viewModel = ViewModelProvider(this).get(ViewModel::class.java)
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
+
         mapFragment?.getMapAsync(this)
+        viewModel.currentLocation.observe(viewLifecycleOwner) { updateCameraPosition() }
+        viewModel.getDeviceLocation()
     }
 
     fun moveCameraWithMarker(location: LatLng) {
@@ -51,18 +55,25 @@ class MapsFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnPoiClickListene
         }
     }
 
+    fun updateCameraPosition() {
+        if(viewModel.currentLocation.value != null) {
+            moveCamera(viewModel.currentLocation.value!!)
+        }
+    }
+
     @SuppressLint("MissingPermission")
     override fun onMapReady(googleMap: GoogleMap) {
-        map = googleMap
 
-        googleMap.isMyLocationEnabled = true
-        googleMap.myLocation
-        googleMap.let {
-            it.addMarker(MarkerOptions().position(viewModel.getSelectedLocation()))
-            it.moveCamera(CameraUpdateFactory.newLatLng(viewModel.getSelectedLocation()))
-            it.setOnPoiClickListener(this)
-            it.setOnMarkerClickListener(this)
+        with(googleMap) {
+            map = this
+            isMyLocationEnabled = true
+            val initialLocation: LatLng = viewModel.getSelectedLocation()
+            addMarker(MarkerOptions().position(initialLocation))
+            moveCamera(CameraUpdateFactory.newLatLng(initialLocation))
         }
+
+        googleMap.setOnPoiClickListener(this)
+        googleMap.setOnMarkerClickListener(this)
     }
 
     override fun onPoiClick(pointOfInterest: PointOfInterest) {
